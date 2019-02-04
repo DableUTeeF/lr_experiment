@@ -1,0 +1,8 @@
+datasets/*
+.idea/*
+checkpoint/*
+k/weights/*
+__pycache__/*
+*.pyc
+misc/*
+prd/*
