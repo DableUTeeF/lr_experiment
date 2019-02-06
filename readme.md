@@ -6,3 +6,5 @@
 |cos1-03    | 0.2     |lrlambda      |
 |step-02    | 0.2     |lrstep        |
 |step-03    | 0.05    |lrstep        |
+|step-04    | 0.01    |lrstep        |
+|step-05    | 0.045   |lrstep        |

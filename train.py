@@ -16,19 +16,24 @@ class Loader(DataLoader):
 
 
 def lrlambda(t, m=6, T=781*300):
-    alpha = (0.2/2)*(math.cos(math.pi*((t-1) % (T/m))/(T/m))+1)
+    alpha = (0.05/2)*(math.cos(math.pi*((t-1) % (T/m))/(T/m))+1)
     return alpha if alpha > 0 else 0.2
 
 
 def lrstep(epoch):
     if epoch < 150:
-        a = 0.05
+        a = 0.045
     elif 150 < epoch < 225:
-        a = 0.005
+        a = 0.0045
     else:
-        a = 0.0005
+        a = 0.00045
     print(f'Epoch: {epoch} - returning learning rate {a}')
     return a
+
+
+def decaylr(epoch):
+    lr = 0.045 * 0.94 ** (2*int(epoch/2))
+    return lr
 
 
 class LambdaLR:
@@ -83,5 +88,5 @@ if __name__ == '__main__':
     schedule = LambdaLR(sgd, lrstep)
 
     history = model.fit_generator(trainloader, 300, validation_data=testloader, schedule=schedule)
-    with open('logs/step-03.json', 'w') as wr:
+    with open('logs/step-05.json', 'w') as wr:
         json.dump(history, wr)
