@@ -8,3 +8,6 @@
 |step-03    | 0.05    |lrstep        |
 |step-04    | 0.01    |lrstep        |
 |step-05    | 0.045   |lrstep        |
+|step-06    | 0.05    |lrstep        |
+|           |         |              |
+|misc-01    | 0.05    | use BCE loss |

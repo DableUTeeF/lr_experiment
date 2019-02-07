@@ -8,6 +8,8 @@ import math
 import json
 from torch import nn
 import torchvision.transforms as transforms
+import numpy as np
+import torch
 
 
 class Loader(DataLoader):
@@ -22,12 +24,12 @@ def lrlambda(t, m=6, T=781*300):
 
 def lrstep(epoch):
     if epoch < 150:
-        a = 0.045
+        a = 0.05
     elif 150 < epoch < 225:
-        a = 0.0045
+        a = 0.005
     else:
-        a = 0.00045
-    print(f'Epoch: {epoch} - returning learning rate {a}')
+        a = 0.0005
+    print(f'Epoch: {epoch+1} - returning learning rate {a}')
     return a
 
 
@@ -52,6 +54,19 @@ class LambdaLR:
             param_group['lr'] = lr
 
 
+def to_categorical(y, num_classes):
+    """ 1-hot encodes a tensor """
+    return np.eye(num_classes, dtype='uint8')[y]
+
+
+class SparceBCELoss(nn.Module):
+    def forward(self, y_pred, y_true):
+        y_true = to_categorical(y_true.long().cpu().detach().numpy(), 10)
+        y_true = torch.from_numpy(y_true).cuda().float()
+        y_pred = nn.Sigmoid()(y_pred.float())
+        return nn.BCELoss()(y_pred, y_true)
+
+
 if __name__ == '__main__':
     try:
         os.listdir('/root')
@@ -63,8 +78,8 @@ if __name__ == '__main__':
     model = Model(ResNet())
     sgd = SGD(model.model.parameters(), 0.01, 0.9)
     model.compile(optimizer=sgd,
-                  loss=nn.CrossEntropyLoss(),
-                  metric='acc',
+                  loss=SparceBCELoss(),
+                  metric=model.categorical_accuracy(),
                   device='cuda'
                   )
     transform_train = transforms.Compose([
@@ -88,5 +103,5 @@ if __name__ == '__main__':
     schedule = LambdaLR(sgd, lrstep)
 
     history = model.fit_generator(trainloader, 300, validation_data=testloader, schedule=schedule)
-    with open('logs/step-05.json', 'w') as wr:
+    with open('logs/misc-01.json', 'w') as wr:
         json.dump(history, wr)
